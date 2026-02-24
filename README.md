@@ -59,10 +59,10 @@ That's it. You now have:
 
 | Method | Path | Behavior |
 |--------|------|----------|
-| GET | `/artifacts/token/:collection/:tokenId` | Returns cached metadata, refreshes if stale (>30 days) |
-| POST | `/artifacts/token/:collection/:tokenId` | Force refresh from chain |
-| GET | `/artifacts/collection/:address` | Returns cached collection info, refreshes if stale |
-| POST | `/artifacts/collection/:address` | Force refresh from chain |
+| GET | `/artifacts/:address` | Returns cached collection info, refreshes if stale (>30 days) |
+| POST | `/artifacts/:address` | Force refresh collection from chain |
+| GET | `/artifacts/:collection/:tokenId` | Returns cached token metadata, refreshes if stale |
+| POST | `/artifacts/:collection/:tokenId` | Force refresh token from chain |
 
 On fetch failure, stale cache is returned if available; 500 otherwise.
 

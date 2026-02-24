@@ -13,8 +13,40 @@ export function createArtifactRoutes(config: ArtifactPluginConfig): Hono {
 
   const app = new Hono();
 
-  // Token endpoints
-  app.get("/token/:collection/:tokenId", async (c) => {
+  // GET /artifacts/:address — collection metadata (lazy refresh)
+  app.get("/:address", async (c) => {
+    const address = c.req.param("address");
+
+    const cached = await fetchCollection(address);
+    if (cached && isFresh(cached.updatedAt)) {
+      return c.json(cached);
+    }
+
+    try {
+      await updateCollection(address);
+      return c.json(await fetchCollection(address));
+    } catch {
+      if (cached) return c.json(cached);
+      return c.json({ error: "Failed to fetch collection metadata" }, 500);
+    }
+  });
+
+  // POST /artifacts/:address — force refresh collection
+  app.post("/:address", async (c) => {
+    const address = c.req.param("address");
+
+    try {
+      await updateCollection(address);
+      return c.json(await fetchCollection(address));
+    } catch {
+      const cached = await fetchCollection(address);
+      if (cached) return c.json(cached);
+      return c.json({ error: "Failed to fetch collection metadata" }, 500);
+    }
+  });
+
+  // GET /artifacts/:collection/:tokenId — token metadata (lazy refresh)
+  app.get("/:collection/:tokenId", async (c) => {
     const collection = c.req.param("collection");
     const tokenId = c.req.param("tokenId");
 
@@ -32,7 +64,8 @@ export function createArtifactRoutes(config: ArtifactPluginConfig): Hono {
     }
   });
 
-  app.post("/token/:collection/:tokenId", async (c) => {
+  // POST /artifacts/:collection/:tokenId — force refresh token
+  app.post("/:collection/:tokenId", async (c) => {
     const collection = c.req.param("collection");
     const tokenId = c.req.param("tokenId");
 
@@ -43,37 +76,6 @@ export function createArtifactRoutes(config: ArtifactPluginConfig): Hono {
       const cached = await fetchToken(collection, tokenId);
       if (cached) return c.json(cached);
       return c.json({ error: "Failed to fetch token metadata" }, 500);
-    }
-  });
-
-  // Collection endpoints
-  app.get("/collection/:address", async (c) => {
-    const address = c.req.param("address");
-
-    const cached = await fetchCollection(address);
-    if (cached && isFresh(cached.updatedAt)) {
-      return c.json(cached);
-    }
-
-    try {
-      await updateCollection(address);
-      return c.json(await fetchCollection(address));
-    } catch {
-      if (cached) return c.json(cached);
-      return c.json({ error: "Failed to fetch collection metadata" }, 500);
-    }
-  });
-
-  app.post("/collection/:address", async (c) => {
-    const address = c.req.param("address");
-
-    try {
-      await updateCollection(address);
-      return c.json(await fetchCollection(address));
-    } catch {
-      const cached = await fetchCollection(address);
-      if (cached) return c.json(cached);
-      return c.json({ error: "Failed to fetch collection metadata" }, 500);
     }
   });
 
