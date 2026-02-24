@@ -1,6 +1,6 @@
 {
   "name": "@1001-digital/ponder-artifacts",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -9,7 +9,9 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts",
     "dev": "tsup src/index.ts --format esm --dts --watch",
@@ -23,8 +25,12 @@
     "@electric-sql/pglite": ">=0.2.0"
   },
   "peerDependenciesMeta": {
-    "pg": { "optional": true },
-    "@electric-sql/pglite": { "optional": true }
+    "pg": {
+      "optional": true
+    },
+    "@electric-sql/pglite": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.2.13",
